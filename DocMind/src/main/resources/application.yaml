@@ -3,12 +3,13 @@ spring:
     name: DocMind
 
   datasource:
-    url: jdbc:postgresql://10.222.168.132/docmind
+    url: jdbc:postgresql://10.23.26.132/docmind
     username: docmind
     password: docmind
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: false
