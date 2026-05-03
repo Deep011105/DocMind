@@ -3,7 +3,7 @@ spring:
     name: DocMind
 
   datasource:
-    url: jdbc:postgresql://10.54.60.132/docmind
+    url: jdbc:postgresql://192.168.0.109/docmind
     username: docmind
     password: docmind
     driver-class-name: org.postgresql.Driver
@@ -13,9 +13,6 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
     enabled: true

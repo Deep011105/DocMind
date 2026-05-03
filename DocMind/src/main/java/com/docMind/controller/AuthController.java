@@ -1,5 +1,6 @@
 package com.docMind.controller;
 
+import com.docMind.dto.ApiResponse;
 import com.docMind.dto.AuthRequest;
 import com.docMind.dto.AuthResponse;
 import com.docMind.dto.RegisterRequest;
@@ -17,13 +18,20 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponse>> register(
+            @Valid @RequestBody RegisterRequest request) {
 
-        return ResponseEntity.ok(authService.register(request));
+        AuthResponse response = authService.register(request);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<ApiResponse<AuthResponse>> login(
+            @RequestBody AuthRequest request) {
+
+        AuthResponse response = authService.login(request);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
