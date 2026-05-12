@@ -1,4 +1,4 @@
-package com.docMind.dto;
+package com.docMind.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,9 +1,9 @@
 package com.docMind.controller;
 
-import com.docMind.dto.ApiResponse;
-import com.docMind.dto.AuthRequest;
-import com.docMind.dto.AuthResponse;
-import com.docMind.dto.RegisterRequest;
+import com.docMind.dto.response.ApiResponse;
+import com.docMind.dto.request.AuthRequest;
+import com.docMind.dto.response.AuthResponse;
+import com.docMind.dto.request.RegisterRequest;
 import com.docMind.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

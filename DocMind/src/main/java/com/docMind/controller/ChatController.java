@@ -1,7 +1,7 @@
 package com.docMind.controller;
 
-import com.docMind.dto.ChatRequest;
-import com.docMind.dto.ChatResponse;
+import com.docMind.dto.request.ChatRequest;
+import com.docMind.dto.response.ChatResponse;
 import com.docMind.entity.User;
 import com.docMind.repository.UserRepository;
 import com.docMind.service.RagQueryService;

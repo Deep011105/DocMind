@@ -1,6 +1,6 @@
 package com.docMind.service;
 
-import com.docMind.dto.ChatResponse;
+import com.docMind.dto.response.ChatResponse;
 import com.docMind.dto.SourceReference;
 import com.docMind.entity.ChatSession;
 import com.docMind.repository.ChatSessionRepository;

@@ -1,6 +1,6 @@
 package com.docMind.controller;
 
-import com.docMind.dto.DocumentResponse;
+import com.docMind.dto.response.DocumentResponse;
 import com.docMind.entity.Document;
 import com.docMind.entity.User;
 import com.docMind.repository.DocumentRepository;

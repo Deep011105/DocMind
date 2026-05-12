@@ -1,11 +1,6 @@
-package com.docMind.config;
+package com.docMind.security;
 
 import com.docMind.repository.UserRepository;
-import com.docMind.service.JwtService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +30,6 @@ import java.io.IOException;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final JwtService jwtService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
@@ -89,46 +83,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // JWT filter as inner component
-    @Component
-    @RequiredArgsConstructor
-    public static class JwtAuthFilter extends OncePerRequestFilter {
-
-        private final JwtService jwtService;
-        private final UserDetailsService userDetailsService;
-
-        @Override
-        protected void doFilterInternal(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        FilterChain filterChain)
-                throws ServletException, IOException {
-
-            final String authHeader = request.getHeader("Authorization");
-
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            final String jwt = authHeader.substring(7);
-            final String email = jwtService.extractEmail(jwt);
-
-            if (email != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                var userDetails = userDetailsService.loadUserByUsername(email);
-
-                if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
-                    var authToken = new
-                            org.springframework.security.authentication
-                                    .UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            }
-
-            filterChain.doFilter(request, response);
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package com.docMind.dto;
+package com.docMind.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

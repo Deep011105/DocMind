@@ -1,4 +1,4 @@
-package com.docMind.service;
+package com.docMind.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

@@ -1,5 +1,6 @@
-package com.docMind.dto;
+package com.docMind.dto.response;
 
+import com.docMind.dto.SourceReference;
 import lombok.Builder;
 import lombok.Data;
 import java.util.List;

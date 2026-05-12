@@ -1,10 +1,12 @@
 package com.docMind.service;
 
-import com.docMind.dto.AuthRequest;
-import com.docMind.dto.AuthResponse;
-import com.docMind.dto.RegisterRequest;
+import com.docMind.dto.request.AuthRequest;
+import com.docMind.dto.response.AuthResponse;
+import com.docMind.dto.request.RegisterRequest;
 import com.docMind.entity.User;
+import com.docMind.exception.UserEmailNotExistException;
 import com.docMind.repository.UserRepository;
+import com.docMind.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,11 +24,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User already exists");
-        }
-
-        if(userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new RuntimeException("User email already exists");
         }
 
         User user = User.builder()
@@ -50,7 +48,7 @@ public class AuthService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserEmailNotExistException("User email not found"));
 
         String token = jwtService.generateToken(request.getEmail());
 

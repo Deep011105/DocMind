@@ -1,7 +1,7 @@
 package com.docMind.exception;
 
-import com.docMind.dto.ApiResponse;
-import com.docMind.dto.ErrorResponse;
+import com.docMind.dto.response.ApiResponse;
+import com.docMind.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -129,6 +129,28 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.badRequest()
+                .body(ApiResponse.failure(error));
+    }
+
+    @ExceptionHandler(UserEmailNotExistException.class)
+    public ResponseEntity<ApiResponse<?>> handleUserEmailNotExist(UserEmailNotExistException e) {
+        ErrorResponse error = ErrorResponse.builder()
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.failure(error));
+    }
+
+    @ExceptionHandler(UserEmailAlreadyExistException.class)
+    public ResponseEntity<ApiResponse<?>> handleUsernameAlreadyExist(UserEmailAlreadyExistException e) {
+        ErrorResponse error = ErrorResponse.builder()
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.failure(error));
     }
 }
