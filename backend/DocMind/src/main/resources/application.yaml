@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: DocMind
+
+  task:
+    execution:
+      pool:
+        core-size: 4
+        max-size: 8
+        queue-capacity: 100
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/docmind
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+app:
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration-ms: 86400000
+
+  rag:
+    chunk-size: 1024
+    chunk-overlap: 50
+    top-k: 5
+    similarity-threshold: 0.7
+
+logging:
+  level:
+    root: INFO
+    com.docmind: DEBUG
