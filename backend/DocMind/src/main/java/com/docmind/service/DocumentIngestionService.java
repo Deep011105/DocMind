@@ -1,7 +1,9 @@
 package com.docmind.service;
 
 import com.docmind.entity.Document;
+import com.docmind.entity.DocumentStatus;
 import com.docmind.entity.User;
+import com.docmind.exception.NoTextExtractedException;
 import com.docmind.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +28,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DocumentIngestionService {
 
-    private final VectorStore vectorStore;
     private final DocumentRepository documentRepository;
+    private final DocumentAsyncProcessService documentAsyncProcessService;
 
     @Value("${app.rag.chunk-size:512}")
     private int chunkSize;
 
-    @Value("${app.rag.chunk-overlap:50}")
-    private int chunkOverlap;
-
     public Document initiateIngestion(MultipartFile file, User user) throws Exception {
+        log.info("initiate thread = {}", Thread.currentThread().getName());
         // Copy bytes BEFORE the async call — MultipartFile closes after HTTP request ends
         byte[] fileBytes = file.getBytes();
         String originalFilename = file.getOriginalFilename();
@@ -46,82 +46,15 @@ public class DocumentIngestionService {
                 .filename(originalFilename)
                 .fileType(extractExtension(originalFilename))
                 .fileSizeBytes(fileSize)
-                .status("PROCESSING")
+                .status(DocumentStatus.PROCESSING)
                 .build();
 
         Document saved = documentRepository.save(doc);
         log.info("Document saved id={}, starting ingestion", saved.getId());
 
         // Pass bytes instead of MultipartFile
-        processAsync(fileBytes, originalFilename, saved);
+        documentAsyncProcessService.processAsync(fileBytes, originalFilename, saved);
         return saved;
-    }
-
-    @Async
-    public void processAsync(byte[] fileBytes, String filename, Document document) {
-        try {
-            // Step 1 — Parse bytes with Tika
-            String rawText = parseWithTika(fileBytes, filename);
-            log.info("Parsed {} characters from {}", rawText.length(), filename);
-
-            // Step 2 — Chunk
-            TokenTextSplitter splitter = TokenTextSplitter.builder()
-                    .withChunkSize(chunkSize)
-                    .withMinChunkSizeChars(chunkOverlap)
-                    .withMinChunkLengthToEmbed(5)
-                    .withMaxNumChunks(10000)
-                    .withKeepSeparator(true)
-                    .build();
-
-            List<org.springframework.ai.document.Document> rawDocs =
-                    List.of(org.springframework.ai.document.Document.builder()
-                            .text(rawText)
-                            .build());
-
-            List<org.springframework.ai.document.Document> chunks = splitter.apply(rawDocs);
-            log.info("Created {} chunks", chunks.size());
-
-            // Step 3 — Enrich with metadata
-            List<org.springframework.ai.document.Document> enriched = new ArrayList<>();
-            for (int i = 0; i < chunks.size(); i++) {
-                Map<String, Object> metadata = Map.of(
-                        "documentId",  document.getId().toString(),
-                        "filename",    document.getFilename(),
-                        "chunkIndex",  i,
-                        "totalChunks", chunks.size(),
-                        "userId",      document.getUser().getId().toString()
-                );
-                enriched.add(org.springframework.ai.document.Document.builder()
-                        .text(chunks.get(i).getText())
-                        .metadata(metadata)
-                        .build());
-            }
-
-            // Step 4 — Embed and store
-            vectorStore.add(enriched);
-            log.info("Stored {} chunks in pgvector", enriched.size());
-
-            // Step 5 — Mark READY
-            document.setStatus("READY");
-            document.setTotalChunks(chunks.size());
-            documentRepository.save(document);
-
-        } catch (Exception e) {
-            log.error("Ingestion failed for document={}", document.getId(), e);
-            document.setStatus("FAILED");
-            documentRepository.save(document);
-        }
-    }
-
-    private String parseWithTika(byte[] fileBytes, String filename) throws Exception {
-        AutoDetectParser parser = new AutoDetectParser();
-        BodyContentHandler handler = new BodyContentHandler(-1);
-        Metadata metadata = new Metadata();
-        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, filename);
-        try (InputStream stream = new java.io.ByteArrayInputStream(fileBytes)) {
-            parser.parse(stream, handler, metadata);
-            return handler.toString().trim();
-        }
     }
 
     private String extractExtension(String filename) {

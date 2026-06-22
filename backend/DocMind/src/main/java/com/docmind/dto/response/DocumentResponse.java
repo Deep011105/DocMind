@@ -1,5 +1,6 @@
 package com.docmind.dto.response;
 
+import com.docmind.entity.DocumentStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,6 +15,6 @@ public class DocumentResponse {
     private String fileType;
     private Long fileSizeBytes;
     private Integer totalChunks;
-    private String status;
+    private DocumentStatus status;
     private LocalDateTime createdAt;
 }

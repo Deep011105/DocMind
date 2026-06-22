@@ -34,9 +34,10 @@ public class Document {
     @Builder.Default
     private Integer totalChunks = 0;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private String status = "PROCESSING";
+    private DocumentStatus status = DocumentStatus.PROCESSING;
 
     @Column(name = "created_at")
     @Builder.Default
